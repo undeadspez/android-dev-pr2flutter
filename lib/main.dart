@@ -40,15 +40,30 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              _buildResultLabel(),
-              FlatButton(
-                child: Text('Clear'),
-                onPressed: () {},
-              )
-            ],
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  width: 1.5,
+                  color: Theme.of(context).accentColor,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  flex: 3,
+                  child: _buildResultLabel()
+                ),
+                Expanded(
+                  child: FlatButton(
+                    child: Text('Clear'),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: Row(
