@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,12 +11,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        primarySwatch: Colors.amber,
+        primarySwatch: Colors.green,
       ),
       home: MyHomePage(title: title),
     );
   }
 }
+
+typedef NumHandler = void Function() Function(int);
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -27,13 +30,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  double _result = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,25 +38,101 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      body: Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _buildResultLabel(),
+              FlatButton(
+                child: Text('Clear'),
+                onPressed: () {},
+              )
+            ],
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(child: _buildNumButton(1)),
+                Expanded(child: _buildNumButton(2)),
+                Expanded(child: _buildNumButton(3)),
+                Expanded(child: _buildButton(text: '+', onPressed: () {})),
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(child: _buildNumButton(4)),
+                Expanded(child: _buildNumButton(5)),
+                Expanded(child: _buildNumButton(6)),
+                Expanded(child: _buildButton(text: '-', onPressed: () {})),
+              ],
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(child: _buildNumButton(7)),
+                Expanded(child: _buildNumButton(8)),
+                Expanded(child: _buildNumButton(9)),
+                Expanded(child: _buildButton(text: '*', onPressed: () {})),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(child: _buildNumButton(0)),
+                Expanded(child: _buildButton(text: '.', onPressed: () {})),
+                Expanded(child: _buildButton(text: '=', onPressed: () {})),
+                Expanded(child: _buildButton(text: '/', onPressed: () {})),
+              ],
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+  Widget _buildResultLabel() {
+    return Container(
+      padding: EdgeInsets.all(25),
+      child: Text(
+        _result.toString(),
+        style: Theme.of(context).textTheme.display1,
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    @required String text,
+    @required void Function() onPressed
+  }) {
+    return FlatButton(
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.normal
+        ),
+      ),
+      onPressed: onPressed,
+    );
+  }
+
+  Widget _buildNumButton(int num) {
+    return _buildButton(
+      text: num.toString(),
+      onPressed: _onNumPressed(num)
+    );
+  }
+
+  final NumHandler _onNumPressed = (int num) => () {
+    debugPrint('Clicked $num');
+  };
 }
