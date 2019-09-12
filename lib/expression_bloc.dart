@@ -21,7 +21,7 @@ class ExpressionBloc {
   void concat(String s) {
     final value = _userInput.value;
     if (value != null) {
-      _userInput.add(_userInput.value + s);
+      _userInput.add(value + s);
     } else {
       _userInput.add(s);
     }

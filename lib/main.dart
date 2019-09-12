@@ -19,8 +19,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-typedef OpHandler = double Function() Function(double, double);
-
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
