@@ -1,6 +1,6 @@
-# pr2flutter
+# Pr2
 
-Pr2.
+Simple calculator.
 
 ## Getting Started
 
