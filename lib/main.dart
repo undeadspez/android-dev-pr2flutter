@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:pr2flutter/expression_bloc.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,18 +29,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ExpressionBloc _expressionBloc;
+  String input;
 
   @override
   void initState() {
-    _expressionBloc = ExpressionBloc();
+    input = '0';
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _expressionBloc.dispose();
-    super.dispose();
+  void resetInput([String value = '0']) {
+    setState(() => input = value);
+  }
+
+  void eval() {
+    try {
+      final parser = Parser();
+      final expr = parser.parse(input);
+      final cm = ContextModel();
+      final result = expr.evaluate(EvaluationType.REAL, cm) as double;
+      if (result == result.floor()) {
+        resetInput(result.round().toString());
+      } else {
+        resetInput(result.toStringAsFixed(13));
+      }
+    } on StateError {
+      resetInput('bad state');
+    }
   }
 
   @override
@@ -69,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Expanded(
                   child: _buildButton('Clear',
-                    onPressed: _expressionBloc.clear,
+                    onPressed: () => resetInput('0'),
                   ),
                 ),
               ],
@@ -79,10 +93,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Expanded(child: _buildButton('1')),
-                Expanded(child: _buildButton('2')),
-                Expanded(child: _buildButton('3')),
-                Expanded(child: _buildButton('+')),
+                Expanded(child: _buildNumButton('1')),
+                Expanded(child: _buildNumButton('2')),
+                Expanded(child: _buildNumButton('3')),
+                Expanded(child: _buildOpButton('+',
+                  onPressed: replaceZero('+'),
+                )),
               ],
             ),
           ),
@@ -90,10 +106,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Expanded(child: _buildButton('4')),
-                Expanded(child: _buildButton('5')),
-                Expanded(child: _buildButton('6')),
-                Expanded(child: _buildButton('-')),
+                Expanded(child: _buildNumButton('4')),
+                Expanded(child: _buildNumButton('5')),
+                Expanded(child: _buildNumButton('6')),
+                Expanded(child: _buildOpButton('-',
+                  onPressed: replaceZero('+')
+                )),
               ],
             ),
           ),
@@ -101,10 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Expanded(child: _buildButton('7')),
-                Expanded(child: _buildButton('8')),
-                Expanded(child: _buildButton('9')),
-                Expanded(child: _buildButton('*')),
+                Expanded(child: _buildNumButton('7')),
+                Expanded(child: _buildNumButton('8')),
+                Expanded(child: _buildNumButton('9')),
+                Expanded(child: _buildOpButton('*')),
               ],
             ),
           ),
@@ -112,14 +130,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Expanded(child: _buildButton('0')),
+                Expanded(child: _buildNumButton('0')),
                 Expanded(child: _buildButton('.')),
                 Expanded(
-                  child: _buildButton('=',
-                    onPressed: _expressionBloc.eval,
-                  ),
+                  child: _buildButton('=', onPressed: eval),
                 ),
-                Expanded(child: _buildButton('/')),
+                Expanded(child: _buildOpButton('/')),
               ],
             ),
           ),
@@ -131,31 +147,43 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildResultLabel() {
     return Container(
       padding: EdgeInsets.all(25),
-      child: StreamBuilder<String>(
-        stream: _expressionBloc.current,//_resultBloc.result,
-        builder: (context, snapshot) {
-          return Text(
-            snapshot?.data ?? '0',
+        child: Text(
+            input,
             overflow: TextOverflow.visible,
-            style: Theme
-                .of(context)
-                .textTheme
-                .display1,
-          );
-        },
-      ),
+            style: Theme.of(context).textTheme.display1)
     );
   }
 
-  Widget _buildButton(text, {void Function() onPressed}) =>
-    FlatButton(
+  replaceZero(String value) {
+    return () {
+      if (input == '0') {
+        setState(() => input = value);
+      } else {
+        setState(() => input += value);
+      }
+    };
+  }
+
+  Widget _buildButton(String num, {void Function() onPressed}) {
+    return FlatButton(
       child: Text(
-        text,
+        num,
         style: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.normal,
         ),
       ),
-      onPressed: onPressed ?? () => _expressionBloc.concat(text),
+      onPressed: onPressed ?? () {
+        setState(() => input += num);
+      }
     );
+  }
+
+  Widget _buildNumButton(String num) {
+    return _buildButton(num, onPressed: replaceZero(num));
+  }
+
+  Widget _buildOpButton(String op, {void Function() onPressed}) {
+    return _buildButton(' $op ', onPressed: onPressed);
+  }
 }
