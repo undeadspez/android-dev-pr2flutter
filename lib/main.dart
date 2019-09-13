@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.pink,
       ),
       home: MyHomePage(title: title),
     );
@@ -47,13 +47,14 @@ class _MyHomePageState extends State<MyHomePage> {
       final expr = parser.parse(input);
       final cm = ContextModel();
       final result = expr.evaluate(EvaluationType.REAL, cm) as double;
+
       if (result == result.floor()) {
         resetInput(result.round().toString());
       } else {
-        resetInput(result.toStringAsFixed(13));
+        resetInput(result.toString());
       }
     } on StateError {
-      resetInput('bad state');
+      resetInput('0');
     }
   }
 
@@ -97,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(child: _buildNumButton('2')),
                 Expanded(child: _buildNumButton('3')),
                 Expanded(child: _buildOpButton('+',
-                  onPressed: replaceZero('+'),
+                  onPressed: () => replaceZero('+'),
                 )),
               ],
             ),
@@ -110,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(child: _buildNumButton('5')),
                 Expanded(child: _buildNumButton('6')),
                 Expanded(child: _buildOpButton('-',
-                  onPressed: replaceZero('+')
+                  onPressed: () => replaceZero('-'),
                 )),
               ],
             ),
@@ -147,27 +148,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildResultLabel() {
     return Container(
       padding: EdgeInsets.all(25),
-        child: Text(
-            input,
-            overflow: TextOverflow.visible,
-            style: Theme.of(context).textTheme.display1)
+        child: Text(input,
+          overflow: TextOverflow.visible,
+          style: Theme.of(context).textTheme.display1,
+        ),
     );
   }
 
-  replaceZero(String value) {
-    return () {
-      if (input == '0') {
-        setState(() => input = value);
-      } else {
-        setState(() => input += value);
-      }
-    };
+  void replaceZero(String value) {
+    if (input == '0') {
+      setState(() => input = value);
+    } else {
+      setState(() => input += value);
+    }
   }
 
   Widget _buildButton(String num, {void Function() onPressed}) {
     return FlatButton(
-      child: Text(
-        num,
+      child: Text(num,
         style: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.normal,
@@ -180,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildNumButton(String num) {
-    return _buildButton(num, onPressed: replaceZero(num));
+    return _buildButton(num, onPressed: () => replaceZero(num));
   }
 
   Widget _buildOpButton(String op, {void Function() onPressed}) {
